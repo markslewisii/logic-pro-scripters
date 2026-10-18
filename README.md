@@ -87,12 +87,24 @@ This script will repeat the held notes at the pulse specified in the parameters.
 
 ### parameters
 
-#### pulse duration
+#### Rate
 Choose a note value for the repeater to repeat the note at.
 
-#### duration percentage
+#### Gate
 
-This is how long each note that is repeated should be played at as a percentage of the chose pulse value.  The higher the percentage, the more legato.  The lower the percentage, the more staccato.
+This is how long each note that is repeated should be played at as a percentage of the chosen pulse value.  The higher the percentage, the more legato.  The lower the percentage, the more staccato.
+
+#### Velocity scale
+
+This is a percentage of the held note's velocity the repeated notes' velocity will be.
+
+#### Vel random
+
+This is the amount of randomness in the repeated note velocity.  0 indicate velocity will be consistent.  High values will create much larger differences in each repeated note's velocity.
+
+#### Rate jitter
+
+This is a maximum value for a random factor to apply to the rate of a repeated note.  If the rate is 1/8 note and rate jitter = 3, the repeated notes could be and 1/8 note (1), 1/4 note (2), dotted quarter note (3).
 
 #### mod wheel
 

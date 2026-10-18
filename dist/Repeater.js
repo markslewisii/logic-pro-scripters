@@ -190,17 +190,27 @@ var noteDuration = {
  * Parameter name pulse duration
  * @type {string} 
  */
-const PULSE_DUR = 'Pulse duration';
+const PULSE_DUR = 'Rate';
 /**
  * Parameter name duration percentage
  * @type {string} 
  */
-const DURATION_PERC = 'Duration percentage';
+const DURATION_PERC = 'Gate';
 /**
  * Parameter name velocity percentage
  * @type {string} 
  */
-const VELOCITY_PERC = 'Velocity percentage';
+const VELOCITY_PERC = 'Velocity scale';
+/**
+ * Parameter name velocity percentage
+ * @type {string} 
+ */
+const VELOCITY_RAND = 'Vel random';
+/**
+ * Parameter name velocity percentage
+ * @type {string} 
+ */
+const REPEAT_RAND = 'Rate jitter';
 /**
  * Previous beat of the last block.  Use to sense when the transport goes back in time.
  * @type {number}
@@ -234,7 +244,7 @@ var pulsePerc = 1.0;
  * @returns {number}
  */
 function getPulse() {
-    return pulsePerc * durationFactory.convertDurationToBeat(durationFactory.getDuration(GetParameter(PULSE_DUR)));
+    return pulsePerc * durationFactory.convertDurationToBeat(durationFactory.getDuration(GetParameter(PULSE_DUR))) * (Math.floor(Math.random() * GetParameter(REPEAT_RAND)) + 1);
 }
 /**
  * Adjust the pulse from the modulation value.  Makes the pulse goe faster as the value approaches 127.
@@ -250,8 +260,8 @@ function adjustPulseFromModulation(modValue) {
  * Get the length of a repeated note
  * @returns {number}
  */
-function getRepeatedNoteDuration() {
-    return getPulse() * (GetParameter(DURATION_PERC) / 100.0);
+function getRepeatedNoteDuration(noteLength) {
+    return noteLength * (GetParameter(DURATION_PERC) / 100.0);
 }
 /**
  * Generate a note with a specified duration.  This will create a NoteOn and NoteOff event.
@@ -263,11 +273,21 @@ function getRepeatedNoteDuration() {
 function createNote(pitch, velocity, start, duration) {
     noteOn = new NoteOn();
     noteOn.pitch = pitch;
-    noteOn.velocity = velocity;
+    noteOn.velocity = getRandomizedVelocity(velocity);
     noteOn.sendAtBeat(start);
     noteOff = new NoteOff();
     noteOff.pitch = pitch;
     noteOff.sendAtBeat(duration);
+}
+
+function getRandomizedVelocity(velocity) {
+    var newVelocity = velocity + Math.floor((Math.random() * GetParameter(VELOCITY_RAND)) - (0.5 * GetParameter(VELOCITY_RAND)));
+    if (newVelocity < 1) {
+        newVelocity = 1;
+    } else if (newVelocity > 127) {
+        newVelocity = 127;
+    }
+    return newVelocity;
 }
 /** 
  * Handle incoming event
@@ -313,7 +333,7 @@ function ProcessMIDI() {
     var pulse = getPulse();
     var nextBeat = durationFactory.nextBeatQuantized(timingInfo.blockStartBeat, pulse);
     while ((timingInfo.blockStartBeat <= nextBeat) && (nextBeat < timingInfo.blockEndBeat)) {
-        var thisBeatEnd = nextBeat + getRepeatedNoteDuration();
+        var thisBeatEnd = nextBeat + getRepeatedNoteDuration(pulse);
         // Put the note off event that exceeds the loop end beat and schedule it from the loop start
         if (timingInfo.cycling && (thisBeatEnd >= timingInfo.rightCycleBeat)) {
             thisBeatEnd = timingInfo.leftCycleBeat + (timingInfo.rightCycleBeat - Math.floor(timingInfo.rightCycleBeat));
@@ -368,5 +388,29 @@ var PluginParameters = [{
         numberOfSteps: 99,
         defaultValue: 100,
         unit: '%'
+    },
+    /* 
+    Parameter: velocity randomness.  Choose how much the velocity of the repeated notes should be adjusted from the original velocity value.
+    */
+    {
+        name: VELOCITY_RAND,
+        type: 'lin',
+        minValue: 0,
+        maxValue: 127,
+        numberOfSteps: 127,
+        defaultValue: 0,
+        unit: ''
+    },
+    /* 
+    Parameter: repetition randomness.  Choose how many multiples of the pulse duration.
+    */
+    {
+        name: REPEAT_RAND,
+        type: 'lin',
+        minValue: 0,
+        maxValue: 12,
+        numberOfSteps: 12,
+        defaultValue: 0,
+        unit: ''
     }
 ];

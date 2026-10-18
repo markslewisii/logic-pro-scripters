@@ -9,22 +9,22 @@
         "clean": "rm ./dist/*.js",
         "build": "for fn in ./src/*.js; do bundle-js \"$fn\" -o \"./dist/${fn##*/}\"; done"
     },
-    "name": "logic-audio-scripters",
-    "version": "1.0.0",
-    "description": "Scripters for use as MIDI effects in Logic Audio.",
+    "name": "logic-pro-scripters",
+    "version": "1.1.0",
+    "description": "Scripters for use as MIDI effects in Logic Pro.",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/markslewisii/logic-audio-scripters.git"
+        "url": "git+https://github.com/markslewisii/logic-pro-scripters.git"
     },
     "keywords": [
         "midi",
-        "logic-audio",
+        "logic-pro",
         "scripter"
     ],
     "author": "Mark Lewis",
     "license": "ISC",
     "bugs": {
-        "url": "https://github.com/markslewisii/logic-audio-scripters/issues"
+        "url": "https://github.com/markslewisii/logic-pro-scripters/issues"
     },
-    "homepage": "https://github.com/markslewisii/logic-audio-scripters#readme"
+    "homepage": "https://github.com/markslewisii/logic-pro-scripters#readme"
 }
